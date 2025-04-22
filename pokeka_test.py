@@ -15,7 +15,22 @@ type_dict = {
     "icon-psychic": "超",
     "icon-dragon": "ドラゴン",
     "icon-steel": "鋼",
-    "icon-dark": "悪"
+    "icon-dark": "悪",
+    "icon-void": "なし"
+}
+
+# カードのレアリティ対応表
+rarity_dict = {
+    "c_c": "C",
+    "u_c": "U",
+    "r_c": "R",
+    "rr": "RR",
+    "ar": "AR",
+    "sr_c": "SR",
+    "sar": "SAR",
+    "ur_c": "UR",
+    "s_2": "S",
+    "ssr": "SSR"
 }
 
 #同じカードのidを記録する
@@ -95,6 +110,7 @@ def get_attacks(detail_soup):
     ポケモンの詳細ページから技を取得する。
     """
     attacks = []
+    attacks_energy = []
     for h4 in detail_soup.find_all("h4"):
         if h4.find("span", class_="icon"):
             attack_name = h4.get_text(strip=True)
@@ -105,6 +121,8 @@ def get_attacks(detail_soup):
                 for class_name in icon["class"]:
                     if class_name in type_dict:
                         attack_types.append(type_dict[class_name])
+                        if not type_dict[class_name] in attacks_energy:
+                            attacks_energy.append(type_dict[class_name])
             attack_damage_tag = h4.find("span", class_="f_right")
             attack_damage = attack_damage_tag.text.strip() if attack_damage_tag else "なし"
             attack_effect_tag = h4.find_next_sibling("p")
@@ -115,7 +133,8 @@ def get_attacks(detail_soup):
                 "ダメージ": attack_damage,
                 "効果": attack_effect
             })
-    return attacks
+            
+    return attacks, attacks_energy
 
 
 # ポケモンの弱点と抵抗を取得する関数
@@ -166,7 +185,6 @@ def get_pack_name(detail_soup):
         if pack_link:
             return pack_link.text.strip()
     return "不明"
-
 
 # カードの詳細情報を取得する関数
 def get_card_details(card_id, headers):
@@ -231,7 +249,7 @@ def get_pokemon_card_info(detail_soup, card_id, pack_name, image_url, regulation
     evolution = [a.text.strip() for a in detail_soup.find_all("a", href=lambda x: x and "pokemon=" in x)]
     abilities = get_abilities(detail_soup)
     has_abilitie = "特性あり" if len(abilities) > 0 else "特性なし"
-    attacks = get_attacks(detail_soup)
+    attacks, attacks_energy = get_attacks(detail_soup)
 
     return {
         "id": card_id,
@@ -249,6 +267,7 @@ def get_pokemon_card_info(detail_soup, card_id, pack_name, image_url, regulation
         "特性の有無": has_abilitie,
         "特性": abilities,
         "ワザ": attacks,
+        "ワザのエネルギー": attacks_energy,
         "弱点": weakness_type,
         "抵抗": resistance_type,
         "逃げるために必要なエネルギー": escape_energy,
@@ -267,7 +286,7 @@ def fetch_pokemon_data(base_url, max_page, headers, ids, pack_flag):
     exit_loop = False
     id_order = [] # ソート用
 
-    for page in range(28, max_page + 1):
+    for page in range(1, max_page + 1):
         response = requests.get(base_url.format(page), headers=headers)
         if response.status_code != 200:
             continue
@@ -294,7 +313,7 @@ def fetch_pokemon_data(base_url, max_page, headers, ids, pack_flag):
             pack_name = get_pack_name(detail_soup)
             rarity_img = detail_soup.find("img", src=lambda x: x and "/assets/images/card/rarity/" in x)
             if rarity_img:
-                card_rarity = rarity_img["src"].split("ic_rare_")[-1].split(".")[0]
+                card_rarity = rarity_dict[rarity_img["src"].split("ic_rare_")[-1].split(".")[0]]
             else:
                 card_rarity = "なし"
 
@@ -382,8 +401,8 @@ def main():
     
     max_page = data.get("maxPage", 1)
     print(max_page)
-    print(f"32ページ目でへばるので{max_page-120}ページだけやります")
-    pokemon_cards, non_pokemon_cards, id_order = fetch_pokemon_data(base_url, max_page-120, headers, ids, pack_flag=False)
+    print(f"32ページ目でへばるので{max_page-147}ページだけやります")
+    pokemon_cards, non_pokemon_cards, id_order = fetch_pokemon_data(base_url, max_page-147, headers, ids, pack_flag=False)
     # 同じカードidを追加する
     find_same_card(pokemon_cards,True)
     find_same_card(non_pokemon_cards,False)

@@ -86,7 +86,7 @@
             "label": "レアリティ",
             "type": "checkbox",
             "category": "レアリティ",
-            "details": ["AR", "SR", "SAR", "UR", "S", "SSR"]
+            "details": ["C", "U", "R", "RR", "AR", "SR", "SAR", "UR", "S", "SSR"]
         }
     ],
     "イラストレーター名": [
