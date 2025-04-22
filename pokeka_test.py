@@ -217,18 +217,11 @@ def get_pokemon_card_info(detail_soup, card_id, pack_name, image_url, regulation
     """
     ポケモンカードの詳細情報を取得する。
     """
-    pokemons_rule = []
+    special_rule = []
     if "ex" in detail_soup.find("h1", class_="Heading1").text:
-        pokemons_rule.append("ポケモンex")
+        special_rule.append("ポケモンex")
     if detail_soup.find("p", class_="mt20", string="このポケモンは、ベンチにいるかぎり、ワザのダメージを受けない。"):
-        pokemons_rule.append("「テラスタル」のポケモン")
-    # is_ex = True if "ex" in detail_soup.find("h1", class_="Heading1").text else False
-    # is_terrastal = True if "このポケモンは、ベンチにいるかぎり、ワザのダメージを受けない。" in detail_soup.find("p", class_="mt20").text else False
-    # is_terrastal = True if detail_soup.find("p", class_="mt20", string="このポケモンは、ベンチにいるかぎり、ワザのダメージを受けない。") else False
-    # pokemons_rule = [
-    #     "ポケモンex" if is_ex else None,
-    #     "「テラスタル」のポケモン" if is_terrastal else None
-    # ]
+        special_rule.append("「テラスタル」のポケモン")
     card_type = detail_soup.find("span", class_="type").text.strip()
     card_type = re.sub(r"\s", "", card_type) # スペースを削除
     hp = detail_soup.find("span", class_="hp-num").text.strip()
@@ -237,6 +230,7 @@ def get_pokemon_card_info(detail_soup, card_id, pack_name, image_url, regulation
     escape_energy = get_escape_energy(detail_soup)
     evolution = [a.text.strip() for a in detail_soup.find_all("a", href=lambda x: x and "pokemon=" in x)]
     abilities = get_abilities(detail_soup)
+    has_abilitie = "特性あり" if len(abilities) > 0 else "特性なし"
     attacks = get_attacks(detail_soup)
 
     return {
@@ -245,13 +239,14 @@ def get_pokemon_card_info(detail_soup, card_id, pack_name, image_url, regulation
         "カテゴリ": "ポケモン",
         "進化": card_type,
         "HP": hp,
-        "特別なルール": pokemons_rule,
+        "特別なルール": special_rule,
         "画像": image_url,
         "レギュレーション": regulation,
         "カード番号": card_number,
         "レアリティ": card_rarity,
         "イラストレーター": illustrator,
         "ポケモンのタイプ": pokemon_type,
+        "特性の有無": has_abilitie,
         "特性": abilities,
         "ワザ": attacks,
         "弱点": weakness_type,
