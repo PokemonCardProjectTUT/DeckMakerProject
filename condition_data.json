@@ -9,7 +9,7 @@
         {
             "label": "ポケモンの種類",
             "type": "checkbox",
-            "category": "ポケモンの種類",
+            "category": "特別なルール",
             "details": ["ポケモンex", "「テラスタル」のポケモン"]
         },
         {

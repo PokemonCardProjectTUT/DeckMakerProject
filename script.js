@@ -110,7 +110,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const filteredCards = _filteredCards.filter(card => {
             return Array.from(selectedTags.entries()).every(([category, values]) => {
-                return values.has(card[category]); // カードのカテゴリが選択された項目に含まれるか
+                if (Array.isArray(card[category])) {
+                    // 複数の値の場合
+                    return card[category].some(value => values.has(value));
+                  } else {
+                     // 単一の値の場合
+                    return values.has(card[category]);
+                  }
             });
         });
 
@@ -280,7 +286,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 selectedTags.set(category, new Set());
             }
             selectedTags.get(category).add(tag);
-            console.log("タグ:", category, tag);
+            console.log("タグ追加:", category, tag);
         } else {
             if (selectedTags.has(category)) {
                 selectedTags.get(category).delete(tag);

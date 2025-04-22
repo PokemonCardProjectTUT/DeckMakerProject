@@ -217,7 +217,18 @@ def get_pokemon_card_info(detail_soup, card_id, pack_name, image_url, regulation
     """
     ポケモンカードの詳細情報を取得する。
     """
-    pokemons_rule = "ex" if "ex" in detail_soup.find("h1", class_="Heading1").text else None
+    pokemons_rule = []
+    if "ex" in detail_soup.find("h1", class_="Heading1").text:
+        pokemons_rule.append("ポケモンex")
+    if detail_soup.find("p", class_="mt20", string="このポケモンは、ベンチにいるかぎり、ワザのダメージを受けない。"):
+        pokemons_rule.append("「テラスタル」のポケモン")
+    # is_ex = True if "ex" in detail_soup.find("h1", class_="Heading1").text else False
+    # is_terrastal = True if "このポケモンは、ベンチにいるかぎり、ワザのダメージを受けない。" in detail_soup.find("p", class_="mt20").text else False
+    # is_terrastal = True if detail_soup.find("p", class_="mt20", string="このポケモンは、ベンチにいるかぎり、ワザのダメージを受けない。") else False
+    # pokemons_rule = [
+    #     "ポケモンex" if is_ex else None,
+    #     "「テラスタル」のポケモン" if is_terrastal else None
+    # ]
     card_type = detail_soup.find("span", class_="type").text.strip()
     card_type = re.sub(r"\s", "", card_type) # スペースを削除
     hp = detail_soup.find("span", class_="hp-num").text.strip()
@@ -261,7 +272,7 @@ def fetch_pokemon_data(base_url, max_page, headers, ids, pack_flag):
     exit_loop = False
     id_order = [] # ソート用
 
-    for page in range(1, max_page + 1):
+    for page in range(28, max_page + 1):
         response = requests.get(base_url.format(page), headers=headers)
         if response.status_code != 200:
             continue
@@ -376,8 +387,8 @@ def main():
     
     max_page = data.get("maxPage", 1)
     print(max_page)
-    print(f"32ページ目でへばるので{max_page-140}ページだけやります")
-    pokemon_cards, non_pokemon_cards, id_order = fetch_pokemon_data(base_url, max_page-140, headers, ids, pack_flag=False)
+    print(f"32ページ目でへばるので{max_page-120}ページだけやります")
+    pokemon_cards, non_pokemon_cards, id_order = fetch_pokemon_data(base_url, max_page-120, headers, ids, pack_flag=False)
     # 同じカードidを追加する
     find_same_card(pokemon_cards,True)
     find_same_card(non_pokemon_cards,False)
