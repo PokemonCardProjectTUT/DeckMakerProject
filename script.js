@@ -185,29 +185,36 @@ document.addEventListener("DOMContentLoaded", () => {
                 const type = subCondition.type;
                 const category = subCondition.category;
                 const details = subCondition.details;
+                const cssClass = subCondition.cssClass;
                 if (type === "checkbox") {
-                    details.forEach(detail => {
+                    details.forEach((detail, index) => {
+                        // checkboxの表示エリア
+                        const checkBoxField = document.createElement("div");
+                        checkBoxField.classList.add("checkbox-field");
+
+                        // checkbox
                         const checkbox = document.createElement("input");
                         checkbox.type = "checkbox";
                         checkbox.addEventListener("click", (e) => {
                             const isChecked = e.target.checked;
                             selectCondition(isChecked, category, detail)
                         });
+                        checkBoxField.appendChild(checkbox);
 
+                        // checkboxのラベル
                         const label = document.createElement("div");
                         label.style.display = "flex";
                         label.style.alignItems = "center";
 
-                        const text = document.createElement("span"); // span要素を使う
+                        const text = document.createElement("span");
+                        if (cssClass) {
+                            text.classList.add(cssClass[index]);
+                        }
                         text.textContent = detail;
                         label.appendChild(text);
+                        checkBoxField.appendChild(label);
 
-                        const paragraph = document.createElement("p");
-                        paragraph.style.width = "8px"
-                        label.appendChild(paragraph);
-
-                        subBoxB.appendChild(checkbox);
-                        subBoxB.appendChild(label);
+                        subBoxB.appendChild(checkBoxField);
                     });
                 } else if (type === "range-dropdown") {
                     const select1 = document.createElement("select");
